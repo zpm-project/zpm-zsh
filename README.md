@@ -55,6 +55,26 @@ zpm update
 
 ```
 
+To remove plugin:
+
+```sh
+zpm remove "user/plugin"
+zpm remove "/path/to/local/plugin"
+```
+
+To uninstall plugin:
+
+```sh
+zpm uninstall "user/plugin"
+zpm uninstall /path/to/local/plugin
+```
+
+To make a copy of your config
+
+```sh
+zpm save > .zpmrc
+```
+
 ## Development
 
 Running tests:

@@ -217,6 +217,67 @@ int mkdir_p(const char *path) {
     return 0;
 }
 
+int rmdir_r(const char *path) {
+    char c[PATH_MAX];
+    strcpy(c, "rm -rf ");
+    strcat(c, path);
+    system(c);
+
+    char* base = strrchr(path, '/');
+    strcpy(c, "rmdir ");
+    strncat(c, path, strlen(path) - strlen(base));
+    strcat(c , " 2> /dev/null");
+    system(c);
+    return 0;
+}
+
+int plugin_remove_entry(char* plugin_name, char* file_name) {
+    FILE* store = fopen(file_name, "r");
+    if (!store) {
+        printf("no config file\n");
+        return 1;
+    }
+    FILE* tmp = fopen("/tmp/.zpm_tmp", "w");
+    char entry[PATH_MAX];
+
+    while (fgets(entry, PATH_MAX, store)) {
+        if (!strstr(entry, plugin_name)) {
+            fwrite(entry, strlen(entry), 1, tmp);
+        }
+    }
+
+    fclose(store);
+    fclose(tmp);
+
+    tmp =fopen("/tmp/.zpm_tmp", "r");
+    store =fopen(file_name, "w");
+    while (fgets(entry, PATH_MAX, tmp)) {
+        fwrite(entry, strlen(entry), 1, store);
+    }
+    fclose(store);
+    fclose(tmp);
+    free(file_name);
+    return 0;
+}
+
+int plugin_remove(char* plugin_name, int uninstall) {
+    if (!plugin_name) {
+        printf("remove needs an argument.\n");
+        return 1;
+    }
+    plugin_remove_entry(plugin_name, get_zpm_init_path());
+    plugin_remove_entry(plugin_name, get_plugin_list_path());
+    if (uninstall && plugin_name[0] != '/') {
+      char plugin_path[PATH_MAX];
+
+      strcpy(plugin_path, getenv("HOME"));
+      strcat(plugin_path, "/.zpm/plugins/");
+      strcat(plugin_path, plugin_name);
+      rmdir_r(plugin_path);
+    }
+    return 0;
+}
+
 int local_clone_exists(char* plugin_name) {
     if (plugin_name[0] == '/') {
         return 0;
@@ -259,7 +320,8 @@ char* generate_repository_url(char* plugin_name) {
     char* tmp = strstr(plugin_name, "/");
 
     if (!tmp) {
-      return NULL;
+        free(url);
+        return NULL;
     }
     tmp = strstr(tmp + 1, "/");
     if (!tmp) {
@@ -344,6 +406,8 @@ int plugins_update_local_clone() {
 
 void usage() {
     printf("%s\n", "Usage:\n\tzpm 'zsh-users/zsh-syntax-highlighting'");
+    printf("%s\n", "\tzpm remove zsh-users/zsh-syntax-highlighting");
+    printf("%s\n", "\tzpm uninstall zsh-users/zsh-syntax-highlighting");
     printf("%s\n", "\nAvailable commands:\n\tzpm reset\n\tzpm list");
     printf("%s\n", "\tzpm update\n\tzpm help");
 }
@@ -382,7 +446,7 @@ int plugin_print_list() {
 
     if (!strcmp(listing, "Nothing to show.")) {
         printf("%s\n", listing);
-        return -1;
+        return 1;
     }
     while (plugin_name) {
        char* hash = plugin_get_hash(plugin_name);
@@ -396,6 +460,22 @@ int plugin_print_list() {
        plugin_name = strtok(NULL, "\n");
     }
     free(listing);
+    return 0;
+}
+
+int plugin_print_script() {
+    char entry[PATH_MAX];
+    char* zpm_init = get_plugin_list_path();
+    FILE* store = fopen(zpm_init, "r");
+
+    memset(entry, 9, PATH_MAX);
+    while( fgets(entry, PATH_MAX, store)) {
+        char plugin[PATH_MAX];
+		strncpy(plugin, entry, strlen(entry) -1);
+        printf("zpm \"%s\"\n", plugin);
+    }
+    free(zpm_init);
+    fclose(store);
     return 0;
 }
 
@@ -423,21 +503,24 @@ int main(int argc, char* argv[]) {
         return 0;
 
     } else if (strstr(plugin_name_or_command, "update")) {
-        plugins_update_local_clone();
-        return 0;
-
+        return plugins_update_local_clone();
     } else if (strstr(plugin_name_or_command, "list")) {
         return plugin_print_list();
+    } else if (strstr(plugin_name_or_command, "save")) {
+        return plugin_print_script();
     } else if (strstr(plugin_name_or_command, "help")) {
         usage();
         return 0;
-
+    } else if (strstr(plugin_name_or_command, "remove")) {
+        return plugin_remove(argv[2], 0);;
+    } else if (strstr(plugin_name_or_command, "uninstall")) {
+        return plugin_remove(argv[2], 1);;
     } else {
         plugin_name = malloc(PATH_MAX);
         strcpy(plugin_name, plugin_name_or_command);
     }
 
-    int status = strstr(plugin_name, "/") ? 0 : -1;
+    int status = strstr(plugin_name, "/") ? 0 : 1;
     char* install = malloc(1024);
     strcpy(install, "Installing ");
     strcat(install, plugin_name);

@@ -5,7 +5,9 @@ Command without arguments gives an error if there are no plugins.
   $ zpm reset
   $ zpm
   Usage:
-  \tzpm 'zsh-users/zsh-syntax-highlighting' (esc)
+  \tzpm "zsh-users/zsh-syntax-highlighting" (esc)
+  \tzpm remove "zsh-users/zsh-syntax-highlighting" (esc)
+  \tzpm uninstall "zsh-users/zsh-syntax-highlighting" (esc)
   
   Available commands:
   \tzpm reset (esc)

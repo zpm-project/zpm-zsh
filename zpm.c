@@ -217,6 +217,78 @@ int mkdir_p(const char *path) {
     return 0;
 }
 
+int rmdir_r(const char *path) {
+    char c[PATH_MAX];
+    strcpy(c, "rm -rf ");
+    strcat(c, path);
+    system(c);
+
+    char* base = strrchr(path, '/');
+    strcpy(c, "rmdir ");
+    strncat(c, path, strlen(path) - strlen(base));
+    strcat(c , " 2> /dev/null");
+    system(c);
+    return 0;
+}
+
+int plugin_remove_entry(char* plugin_name, char* file_name) {
+    if (!plugin_name) {
+        printf("remove/uninstall command needs argument.\n");
+        return 1;
+    }
+    FILE* store = fopen(file_name, "r");
+    if (!store) {
+        printf("Could not open \"%s\". Check the file exists and can be read.\n", file_name);
+        return 1;
+    }
+
+    FILE* tmp = fopen("/tmp/.zpm_tmp", "w");
+    if (!tmp) {
+        printf("Could not open \"%s\". Check the file can be written.\n", "/tmp/.zpm_tmp");
+        return 1;
+    }
+
+    char entry[PATH_MAX];
+
+    while (fgets(entry, PATH_MAX, store)) {
+        if (!strstr(entry, plugin_name)) {
+            fwrite(entry, strlen(entry), 1, tmp);
+        }
+    }
+
+    fclose(store);
+    fclose(tmp);
+
+    tmp = fopen("/tmp/.zpm_tmp", "r");
+    store =fopen(file_name, "w");
+    while (fgets(entry, PATH_MAX, tmp)) {
+        fwrite(entry, strlen(entry), 1, store);
+    }
+    fclose(store);
+    fclose(tmp);
+    unlink("/tmp/.zpm_tmp");
+    free(file_name);
+    return 0;
+}
+
+int plugin_remove(char* plugin_name, int uninstall) {
+    if (!plugin_name) {
+        printf("remove needs an argument.\n");
+        return 1;
+    }
+    plugin_remove_entry(plugin_name, get_zpm_init_path());
+    plugin_remove_entry(plugin_name, get_plugin_list_path());
+    if (uninstall && plugin_name[0] != '/') {
+        char plugin_path[PATH_MAX];
+
+        strcpy(plugin_path, getenv("HOME"));
+        strcat(plugin_path, "/.zpm/plugins/");
+        strcat(plugin_path, plugin_name);
+        rmdir_r(plugin_path);
+    }
+    return 0;
+}
+
 int local_clone_exists(char* plugin_name) {
     if (plugin_name[0] == '/') {
         return 0;
@@ -343,7 +415,9 @@ int plugins_update_local_clone() {
 }
 
 void usage() {
-    printf("%s\n", "Usage:\n\tzpm 'zsh-users/zsh-syntax-highlighting'");
+    printf("%s\n", "Usage:\n\tzpm \"zsh-users/zsh-syntax-highlighting\"");
+    printf("%s\n", "\tzpm remove \"zsh-users/zsh-syntax-highlighting\"");
+    printf("%s\n", "\tzpm uninstall \"zsh-users/zsh-syntax-highlighting\"");
     printf("%s\n", "\nAvailable commands:\n\tzpm reset\n\tzpm list");
     printf("%s\n", "\tzpm update\n\tzpm help\n\tzpm save");
 }
@@ -451,6 +525,10 @@ int main(int argc, char* argv[]) {
         return plugin_print_list();
     } else if (strstr(plugin_name_or_command, "save")) {
         return plugin_print_script();
+    } else if (strstr(plugin_name_or_command, "remove")) {
+        return plugin_remove(argv[2], 0);
+    } else if (strstr(plugin_name_or_command, "uninstall")) {
+        return plugin_remove(argv[2], 1);
     } else if (strstr(plugin_name_or_command, "help")) {
         usage();
         return 0;

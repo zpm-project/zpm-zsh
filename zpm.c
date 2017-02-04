@@ -329,7 +329,7 @@ char* get_zpm_plugin_list() {
 
     list = fopen(plugin_list_path, "rb");
     if (list != NULL) {
-        fread(listing, 1, 1024, list);
+        fread(listing, 1, PATH_MAX, list);
         fclose(list);
     }
     if (!list || !strcmp(listing, "")) {
@@ -559,7 +559,7 @@ int main(int argc, char* argv[]) {
     }
 
     int status = strstr(plugin_name, "/") ? 0 : -1;
-    char install[1024];
+    char install[PATH_MAX];
     strcpy(install, "Installing ");
     strcat(install, plugin_name);
     strcat(install, "... ");

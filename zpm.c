@@ -91,13 +91,12 @@ int generate_plugin_entry(char* plugin_name) {
     FILE* store = fopen(zpm_init,"ab+");
 
     char* plugin_entry = get_plugin_entry(plugin_name);
-    char* plugin_entry_list = malloc(PATH_MAX);
-    fread(plugin_entry_list, 1, 1024, store);
+    char  plugin_entry_list[PATH_MAX];
+    fread(plugin_entry_list, 1, PATH_MAX, store);
     fclose(store);
     if (strstr(plugin_entry_list, plugin_entry)) {
         free(zpm_init);
         free(plugin_entry);
-        free(plugin_entry_list);
         return 0;
     }
     FILE *init = fopen(zpm_init, "r+");
@@ -127,7 +126,6 @@ int generate_plugin_entry(char* plugin_name) {
 
     free(zpm_init);
     free(plugin_entry);
-    free(plugin_entry_list);
     return status;
 }
 
@@ -142,7 +140,8 @@ char* get_plugin_list_path() {
 
 int plugin_list_add_item(char* plugin_name) {
     int ret;
-    char* plugin_item = malloc(PATH_MAX);
+    char plugin_item[PATH_MAX];
+    char plugin_item_list[PATH_MAX];
 
     if (!strncmp(plugin_name, "github.com", 11)) {
         strcpy(plugin_item, plugin_name + 11);
@@ -155,25 +154,18 @@ int plugin_list_add_item(char* plugin_name) {
     FILE* store = fopen(plugin_list,"ab+");
 
     if (!store) {
-        free(plugin_item);
-        free(plugin_list);
         return -1;
     }
 
-    char* plugin_item_list = malloc(PATH_MAX);
 
-    fread(plugin_item_list, 1, 1024, store);
+
+    fread(plugin_item_list, 1, PATH_MAX, store);
     if (strstr(plugin_item_list, plugin_item)) {
-        free(plugin_item);
-        free(plugin_list);
-        free(plugin_item_list);
         return 0;
     }
 
     ret = fwrite(plugin_item, strlen(plugin_item), 1, store);
-    free(plugin_item);
     free(plugin_list);
-    free(plugin_item_list);
     fclose(store);
     return ret;
 }
@@ -297,9 +289,10 @@ char* generate_repository_url(char* plugin_name) {
 
     if (!tmp) {
       return NULL;
+      free(url);
     }
     tmp = strstr(tmp + 1, "/");
-    if (!tmp) {
+    if (!tmp) { 
         strcpy(url, "https://github.com/");
     } else {
         strcpy(url, "https://");
@@ -313,12 +306,10 @@ int locally_clone_plugin(char* plugin_name) {
     int ret;
     char* repository_url = generate_repository_url(plugin_name);
     char* clone_destination = generate_plugin_path(plugin_name);
-
+    char  command[PATH_MAX];
     if (!repository_url) {
       return -1;
     }
-
-    char* command = malloc(PATH_MAX);
     strcpy(command, "git clone --recursive --depth=1 ");
     strcat(command, repository_url);
     strcat(command, " ");
@@ -327,15 +318,13 @@ int locally_clone_plugin(char* plugin_name) {
 
     free(repository_url);
     free(clone_destination);
-
     ret = system(command);
-    free(command);
     return ret;
 }
 
 char* get_zpm_plugin_list() {
     char* plugin_list_path = get_plugin_list_path();
-    char* listing = malloc(1024);
+    char* listing = malloc(PATH_MAX);
     FILE* list;
 
     list = fopen(plugin_list_path, "rb");
@@ -354,7 +343,7 @@ char* get_zpm_plugin_list() {
 
 int plugins_update_local_clone() {
     int ret;
-    char* command = malloc(PATH_MAX);
+    char  command[PATH_MAX];
     char* listing = get_zpm_plugin_list();
     char* plugin_name = strtok(listing, "\n");
 
@@ -375,7 +364,6 @@ int plugins_update_local_clone() {
         ret = system(command);
         plugin_name = strtok(NULL, "\n");
     }
-    free(command);
     free(listing);
     return ret;
 }
@@ -571,7 +559,7 @@ int main(int argc, char* argv[]) {
     }
 
     int status = strstr(plugin_name, "/") ? 0 : -1;
-    char* install = malloc(1024);
+    char install[1024];
     strcpy(install, "Installing ");
     strcat(install, plugin_name);
     strcat(install, "... ");
@@ -591,7 +579,6 @@ int main(int argc, char* argv[]) {
     }
 
     free(plugin_name);
-    free(install);
     return status;
 }
 

@@ -42,6 +42,8 @@ If you add or remove new plugins you will need to:
 zpm reset
 ```
 
+### Commands
+
 To see a list of installed plugins:
 
 ```sh
@@ -54,6 +56,38 @@ To update installed plugins:
 zpm update
 
 ```
+To persist your current configuration to be able to commit it into a dotfile repository:
+
+```sh
+zpm save
+
+```
+Example:
+
+    zpm save > ~/dotfiles/.zpmrc
+
+Next time you'll only need to install them like so:
+
+    source ~/dotfiles/.zpmrc
+
+To reset your plugin configuration:
+```sh
+zpm reset
+
+```
+
+To disable a plugin from loading:
+```sh
+zpm disable "plugin/name"
+
+```
+
+To disable and remove a plugin from disk:
+```sh
+zpm remove "plugin/name"
+
+```
+
 
 ## Development
 

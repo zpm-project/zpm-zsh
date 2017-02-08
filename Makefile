@@ -1,12 +1,18 @@
 PREFIX ?= /usr/local
 
-make:
-	gcc -Wall -o zpm -g zpm.c
+CFLAGS =-Wall -g
 
-test:
+make:
+	${CC} ${CFLAGS} -o zpm zpm.c
+
+test: make
 	tests/setup.sh
-	ZPM_TEST_REPOS=/tmp/zpm-test-suite/repositories cram -v tests/*.t -v
-	
+	ZPM="${PWD}/zpm"  ZPM_TEST_REPOS=/tmp/zpm-test-suite/repositories cram -v tests/*.t
+
+valgrind: make
+	tests/setup.sh
+	ZPM="bash ${PWD}/tests/valgrind_profiling.sh ${PWD}/zpm" ZPM_TEST_REPOS=/tmp/zpm-test-suite/repositories cram -v tests/*.t
+
 install: make
 	cp zpm ${PREFIX}/bin/zpm
 	chmod u+x ${PREFIX}/bin/zpm
@@ -14,3 +20,5 @@ install: make
 uninstall:
 	rm ${PREFIX}/bin/zpm
 
+clean:
+	rm zpm

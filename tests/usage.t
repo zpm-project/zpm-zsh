@@ -2,8 +2,8 @@
 
 Command without arguments gives an error if there are no plugins.
 
-  $ zpm reset
-  $ zpm
+  $ $ZPM reset
+  $ $ZPM
   Usage:
   \tzpm "zsh-users/zsh-syntax-highlighting" (esc)
   \tzpm disable "zsh-users/zsh-syntax-highlighting" (esc)
@@ -16,4 +16,3 @@ Command without arguments gives an error if there are no plugins.
   \tzpm help (esc)
   \tzpm save (esc)
   [1]
-

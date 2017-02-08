@@ -2,15 +2,15 @@
 
 Command `list` without any plugin registered show a message.
 
-  $ zpm reset
-  $ zpm list
+  $ $ZPM reset
+  $ $ZPM list
   Nothing to show.
   [1]
 
 Can create a new list.
 
-  $ zpm reset
-  $ zpm "$ZPM_TEST_REPOS/example-plugin"
+  $ $ZPM reset
+  $ $ZPM "$ZPM_TEST_REPOS/example-plugin"
   Installing .*/example-plugin... Done. (re)
 
   $ cat $HOME/.zpm-init.zsh
@@ -21,7 +21,7 @@ Can create a new list.
 
 Subsequentially add a new item to the list.
 
-  $ zpm "$ZPM_TEST_REPOS/example-theme"
+  $ $ZPM "$ZPM_TEST_REPOS/example-theme"
   Installing .*/example-theme... Done. (re)
   $ cat $HOME/.zpm-init.zsh
   source .*/example-plugin/example.plugin.zsh (re)
@@ -34,17 +34,15 @@ Subsequentially add a new item to the list.
 
 List command show list of installed plugins.
 
-  $ zpm list
+  $ $ZPM list
   .*example-plugin .* (re)
   .*example-theme .* (re)
 
 Do not allow duplicate plugin entries/items.
 
-  $ zpm reset
-  $ zpm "$ZPM_TEST_REPOS/example-theme" > /dev/null
-  $ zpm "$ZPM_TEST_REPOS/example-theme" > /dev/null
+  $ $ZPM reset
+  $ $ZPM "$ZPM_TEST_REPOS/example-theme" > /dev/null
+  $ $ZPM "$ZPM_TEST_REPOS/example-theme" > /dev/null
   [1]
-  $ zpm list
+  $ $ZPM list
   .*example-theme .* (re)
-
-

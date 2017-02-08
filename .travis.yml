@@ -1,3 +1,5 @@
+sudo: false
+
 language: c
 
 os:
@@ -8,15 +10,24 @@ compiler:
   - clang
   - gcc
 
+env:
+  - TARGET=test
+  - TARGET=valgrind
+
+addons:
+  apt:
+    packages:
+      - zsh
+      - valgrind
+
 install:
-  - sudo -H pip install cram
+  - pip install --user cram
+  - if [ $TRAVIS_OS_NAME == 'osx' ]; then brew install zsh valgrind; fi
 
 before_script:
-  - if [ $TRAVIS_OS_NAME == 'osx' ]; then brew install zsh; else sudo apt-get install zsh; fi
-  - git config --global user.email "you@example.com"
-  - git config --global user.name "Your Name"
+  - git config --global user.email 'you@example.com'
+  - git config --global user.name 'Your Name'
 
 script:
-  - sudo make install
-  - make test
+  - make $TARGET
   

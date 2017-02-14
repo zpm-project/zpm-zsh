@@ -11,8 +11,11 @@ compiler:
 
 env:
   - TARGET=test
+  - TARGET=valgrind
+
+matrix:
   allow_failures:
-    - TARGET=valgrind
+  - TARGET=valgrind
 
 addons:
   apt:

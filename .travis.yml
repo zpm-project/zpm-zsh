@@ -10,11 +10,13 @@ compiler:
   - gcc
 
 env:
+  matrix:
   - TARGET=test
   - TARGET=valgrind
 
-allow_failures:
-  - TARGET=valgrind
+matrix:
+  allow_failures:
+    - env: TARGET=valgrind
 
 addons:
   apt:

@@ -1,6 +1,6 @@
 PREFIX ?= /usr/local
 
-CFLAGS =-Wall -g -std=c99
+CFLAGS =-Wall -g -std=c99 -D_POSIX_C_SOURCE=2
 
 make:
 	${CC} ${CFLAGS} -o zpm zpm.c

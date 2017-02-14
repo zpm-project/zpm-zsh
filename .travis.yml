@@ -4,7 +4,6 @@ language: c
 
 os:
   - linux
-  - osx
 
 compiler:
   - clang
@@ -12,7 +11,8 @@ compiler:
 
 env:
   - TARGET=test
-  - TARGET=valgrind
+  allow_failures:
+    - TARGET=valgrind
 
 addons:
   apt:

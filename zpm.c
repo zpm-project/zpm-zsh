@@ -1,6 +1,7 @@
 /* vim: set ts=4 sw=4 expandtab: */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -15,6 +16,8 @@
 
 #define TRUE 1
 #define FALSE 0
+
+#define PATH_MAX 1024
 
 static char zpm_init[PATH_MAX];
 static char zpm_list[PATH_MAX];

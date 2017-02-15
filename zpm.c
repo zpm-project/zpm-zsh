@@ -364,15 +364,18 @@ char* plugin_get_hash(char* plugin_name) {
     char* plugin_path = generate_plugin_path(plugin_name);
     char plugin_hash[PATH_MAX];
     char command[PATH_MAX];
+	char git_path[PATH_MAX];
 
-    strcat(plugin_path, "/.git");
-    if (stat(plugin_path, &s) == -1 || !S_ISDIR(s.st_mode)) {
+	strcpy(git_path, plugin_path);
+    strcat(git_path, "/.git");
+	memset(&s, 0, sizeof(s));
+    if (stat(git_path, &s) == -1 || !S_ISDIR(s.st_mode)) {
         free(plugin_path);
         return NULL;
     }
     memset(command, 0, PATH_MAX);
     strcat(command, "git --git-dir=");
-    strcat(command, plugin_path);
+    strcat(command, git_path);
     strcat(command, " rev-parse --short HEAD");
     fp = popen(command, "r");
     if (!fp) {

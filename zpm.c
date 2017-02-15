@@ -309,7 +309,7 @@ char* get_zpm_plugin_list() {
             } else {
                 char c[strlen(listing)];
                 strcpy(c, listing);
-                listing = realloc(listing, strlen(listing) + strlen(tmp));
+                listing = realloc(listing, strlen(listing) + strlen(tmp) + 1);
                 sprintf(listing, "%s%s", c, tmp);
             }
        }

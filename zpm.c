@@ -19,6 +19,9 @@
 
 static char zpm_init[PATH_MAX];
 static char zpm_list[PATH_MAX];
+static int zpm_has_color = 0;
+static const char* zpm_usage = "Usage:\n\tzpm \"zsh-users/zsh-syntax-highlighting\"\n%s\n\tzpm disable \"zsh-users/zsh-syntax-highlighting\"\
+\tzpm remove \"zsh-users/zsh-syntax-highlighting\"\nAvailable commands:\n\tzpm reset\n\tzpm list\tzpm update\n\tzpm save\n\tzpm help\n\tzpm version";
 
 enum ZPM_MSG_TYPE {
     ZPM_MSG,
@@ -35,9 +38,13 @@ void zpm_msg(enum ZPM_MSG_TYPE type, const char* fmt, ...) {
     va_start(arg, fmt);
     vsnprintf(msg, 256, fmt, arg);
     if (type != ZPM_NONE) {
-        fprintf(f, "[ZPM] ");
-    }
-    fprintf(f, "%s\n", msg);
+       if(zpm_has_color) {
+        int color = type == ZPM_ERR ? 31 : 32;
+        fprintf(f, "\033[1m[\033[0m\033[%imZPM\033[0m\033[1m]\033[0m ", color);
+       } else {
+         fprintf(f, "[ZPM] ");
+       }
+    }    fprintf(f, "%s", msg);
     va_end(arg);
 }
 
@@ -349,10 +356,10 @@ int plugins_update_local_clone() {
     char* plugin_name = strtok(listing, "\n");
 
     if (!strcmp(listing, "Nothing to show.")) {
-      printf("Nothing to update.");
+      zpm_msg(ZPM_ERR, "Nothing to update.");
       return 1;
     }
-    printf("Updating plugins...\n");
+    zpm_msg(ZPM_MSG, "Updating plugins...\n");
     while (plugin_name) {
         if (plugin_name[0] == '/') {
             plugin_name = strtok(NULL, "\n");
@@ -361,7 +368,7 @@ int plugins_update_local_clone() {
         strcpy(command, "cd ~/.zpm/plugins/");
         strcat(command, plugin_name);
         strcat(command, "; git pull");
-        printf("Updating %s...\n", plugin_name);
+        zpm_msg(ZPM_MSG, "Updating %s...\n", plugin_name);
         ret = system(command);
         plugin_name = strtok(NULL, "\n");
     }
@@ -370,11 +377,14 @@ int plugins_update_local_clone() {
 }
 
 int usage(char* ret) {
+    zpm_msg(ret ? ZPM_ERR : ZPM_MSG, "/s\n", zpm_usage);
+/*
     printf("%s\n", "Usage:\n\tzpm \"zsh-users/zsh-syntax-highlighting\"");
     printf("%s\n", "\tzpm disable \"zsh-users/zsh-syntax-highlighting\"");
     printf("%s\n", "\tzpm remove \"zsh-users/zsh-syntax-highlighting\"");
     printf("%s\n", "\nAvailable commands:\n\tzpm reset\n\tzpm list");
     printf("%s\n", "\tzpm update\n\tzpm save\n\tzpm help\n\tzpm version");
+*/
     return ret ? 0 : 1;
 }
 
@@ -400,7 +410,7 @@ char* plugin_get_hash(char* plugin_name) {
     fp = popen(command, "r");
     if (!fp) {
         free(plugin_path);
-        printf("Failed to run command\n" );
+        zpm_msg(ZPM_ERR, "Failed to run command\n" );
         return NULL;
     }
     fgets(plugin_hash, sizeof(plugin_hash), fp);
@@ -414,18 +424,25 @@ int plugin_print_list() {
     char* plugin_name = strtok(listing, "\n");
 
     if (!strcmp(listing, "Nothing to show.")) {
-        printf("%s\n", listing);
+        zpm_msg(ZPM_MSG, "%s\n", listing);
         free(listing);
         return 1;
     }
     while (plugin_name) {
        char* hash = plugin_get_hash(plugin_name);
-       printf("%s", plugin_name);
        if (hash) {
-           printf("@%s", hash);
+           if(zpm_has_color) {
+               zpm_msg(ZPM_NONE, "\033[1m%s\033[0m@%s", plugin_name, hash);
+           } else {
+               zpm_msg(ZPM_NONE, "%s@%s", plugin_name, hash);
+           }
            free(hash);
        } else {
-          printf("\n");
+           if(zpm_has_color) {
+               zpm_msg(ZPM_NONE, "\033[1m%s\033[0m\n", plugin_name);
+           } else {
+               zpm_msg(ZPM_NONE, "%s\n", plugin_name);
+           }
        }
        plugin_name = strtok(NULL, "\n");
     }
@@ -438,7 +455,7 @@ int plugin_print_script() {
     FILE* store = fopen(zpm_init, "r");
 
     if (!store) {
-        printf("Could not open \"%s\". Check the file exists and can be read.\n", zpm_init);
+        zpm_msg(ZPM_ERR, "Could not open \"%s\". Check the file exists and can be read.\n", zpm_init);
         return 1;
     }
 
@@ -446,7 +463,7 @@ int plugin_print_script() {
     while (fgets(entry, PATH_MAX, store)) {
         char plugin[PATH_MAX];
         strncpy(plugin, entry, strlen(entry) -1);
-        printf("zpm \"%s\"\n", plugin);
+        zpm_msg(ZPM_NONE, "zpm \"%s\"\n", plugin);
     }
     fclose(store);
     return 0;
@@ -454,18 +471,18 @@ int plugin_print_script() {
 
 int plugin_remove_entry(char* plugin_name, char* file_name) {
     if (!plugin_name) {
-        printf("remove/uninstall command needs argument.\n");
+        zpm_msg(ZPM_ERR, "remove/uninstall command needs argument.\n");
         return 1;
     }
     FILE* store = fopen(file_name, "r");
     if (!store) {
-        printf("Could not open \"%s\". Check the file exists and can be read.\n", file_name);
+        zpm_msg(ZPM_ERR,"Could not open \"%s\". Check the file exists and can be read.\n", file_name);
         return 1;
     }
 
     FILE* tmp = fopen("/tmp/.zpm_tmp", "w");
     if (!tmp) {
-        printf("Could not open \"%s\". Check the file can be written.\n", "/tmp/.zpm_tmp");
+        zpm_msg(ZPM_ERR, "Could not open \"%s\". Check the file can be written.\n", "/tmp/.zpm_tmp");
         return 1;
     }
 
@@ -493,11 +510,11 @@ int plugin_remove_entry(char* plugin_name, char* file_name) {
 
 int plugin_remove(char* plugin_name, int uninstall) {
     if (!plugin_name) {
-        printf("remove needs an argument.\n");
+        zpm_msg(ZPM_ERR, "remove needs an argument.\n");
         return 1;
     }
     if (!plugin_entry_exists(plugin_name)) {
-        printf("Plugin \"%s\" is not installed.\n", plugin_name);
+        zpm_msg(ZPM_ERR, "Plugin \"%s\" is not installed.\n", plugin_name);
         return 1;
     }
     plugin_remove_entry(plugin_name, zpm_init);
@@ -532,20 +549,18 @@ void zpm_config_init() {
 
     strcpy(zpm_list, home);
     strcat(zpm_list, "/.zpm/plugin_list");
+
+    zpm_has_color = getenv("ZPM_COLOR") ? 1 : 0;
 }
 
 int plugin_install(char* plugin_name) {
     int status = strstr(plugin_name, "/") ? 0 : -1;
-    char install[PATH_MAX];
-    
+
     if (plugin_entry_exists(plugin_name)) {
-        printf("Plugin \"%s\" already installed.\n", plugin_name);
+        zpm_msg(ZPM_ERR, "Plugin \"%s\" already installed.\n", plugin_name);
         return 1;
     }
-    strcpy(install, "Installing ");
-    strcat(install, plugin_name);
-    strcat(install, "... ");
-    printf("%s", install);
+    zpm_msg(ZPM_MSG, "Installing %s... ", plugin_name);
     fflush(stdout);
 
     if (local_clone_exists(plugin_name) == 1) {
@@ -553,11 +568,11 @@ int plugin_install(char* plugin_name) {
     }
 
     if (status == 0) {
-        printf("%s\n", "Done.");
+        zpm_msg(ZPM_NONE, "%s\n", "Done.");
         generate_plugin_entry(plugin_name);
         plugin_list_add_item(plugin_name);
     } else {
-        printf("%s\n", "Error!");
+        zpm_msg(ZPM_NONE, "%s\n", "Error!");
     }
     return status;
 }
@@ -583,7 +598,7 @@ int main(int argc, char* argv[]) {
     } else if (strstr(argv[1], "help")) {
         return usage(argv[1]);
     } else if (strstr(argv[1], "version")) {
-        printf("%s\n", ZPM_VERSION);
+        zpm_msg(ZPM_MSG, "%s\n", ZPM_VERSION);
         return 0;
     } else {
         return plugin_install(argv[1]);

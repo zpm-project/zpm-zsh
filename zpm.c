@@ -20,8 +20,8 @@
 static char zpm_init[PATH_MAX];
 static char zpm_list[PATH_MAX];
 static int zpm_has_color = 0;
-static const char* zpm_usage = "Usage:\n\tzpm \"zsh-users/zsh-syntax-highlighting\"\n%s\n\tzpm disable \"zsh-users/zsh-syntax-highlighting\"\
-\tzpm remove \"zsh-users/zsh-syntax-highlighting\"\nAvailable commands:\n\tzpm reset\n\tzpm list\tzpm update\n\tzpm save\n\tzpm help\n\tzpm version";
+static const char* zpm_usage = "Usage:\n\tzpm \"zsh-users/zsh-syntax-highlighting\"\n\tzpm disable \"zsh-users/zsh-syntax-highlighting\"\n\
+\tzpm remove \"zsh-users/zsh-syntax-highlighting\"\n\nAvailable commands:\n\tzpm reset\n\tzpm list\n\tzpm update\n\tzpm save\n\tzpm help\n\tzpm version";
 
 enum ZPM_MSG_TYPE {
     ZPM_MSG,
@@ -377,14 +377,7 @@ int plugins_update_local_clone() {
 }
 
 int usage(char* ret) {
-    zpm_msg(ret ? ZPM_ERR : ZPM_MSG, "/s\n", zpm_usage);
-/*
-    printf("%s\n", "Usage:\n\tzpm \"zsh-users/zsh-syntax-highlighting\"");
-    printf("%s\n", "\tzpm disable \"zsh-users/zsh-syntax-highlighting\"");
-    printf("%s\n", "\tzpm remove \"zsh-users/zsh-syntax-highlighting\"");
-    printf("%s\n", "\nAvailable commands:\n\tzpm reset\n\tzpm list");
-    printf("%s\n", "\tzpm update\n\tzpm save\n\tzpm help\n\tzpm version");
-*/
+    zpm_msg(ZPM_NONE, "%s\n", zpm_usage);
     return ret ? 0 : 1;
 }
 

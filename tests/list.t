@@ -41,8 +41,8 @@ List command show list of installed plugins.
 Do not allow duplicate plugin entries/items.
 
   $ $ZPM reset
-  $ $ZPM "$ZPM_TEST_REPOS/example-theme" 2>&1 > /dev/null
-  $ $ZPM "$ZPM_TEST_REPOS/example-theme" 2>&1 > /dev/null 2>&1
+  $ $ZPM "$ZPM_TEST_REPOS/example-theme" > /dev/null 2>&1
+  $ $ZPM "$ZPM_TEST_REPOS/example-theme" > /dev/null 2>&1
   [1]
   $ $ZPM list
   .*example-theme@.* (re)

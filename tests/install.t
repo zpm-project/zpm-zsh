@@ -13,7 +13,7 @@ Can install multiple plugins under the same user.
 
 Avoid installing plugin twice
   $ $ZPM reset
-  $ $ZPM "$ZPM_TEST_REPOS/example-plugin"2<>11 > /dev/null
+  $ $ZPM "$ZPM_TEST_REPOS/example-plugin" > /dev/null 2>&1
   $ $ZPM "$ZPM_TEST_REPOS/example-plugin"
   \[ZPM\] Plugin ".*/example-plugin" already installed. (re)
   [1]

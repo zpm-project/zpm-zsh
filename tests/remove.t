@@ -8,9 +8,9 @@ Can't remove non-installed plugin
 
 Plugin parent directory is not removed if not empty
   $ $ZPM reset
-  $ $ZPM "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
-  $ $ZPM "zsh-users/zsh-autosuggestions"    2>&1 > /dev/null
-  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
+  $ $ZPM "zsh-users/zsh-syntax-highlighting" > /dev/null 2>&1
+  $ $ZPM "zsh-users/zsh-autosuggestions"     > /dev/null 2>&1
+  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" > /dev/null 2>&1
   $ ls $HOME/.zpm/plugins/zsh-users/
   zsh-autosuggestions
 
@@ -19,9 +19,9 @@ Plugin directory is properly unlinked after remove and parent directory is prope
   $ $ZPM list
   zsh-users/zsh-autosuggestions@.* (re)
 
-  $ $ZPM "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
-  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
-  $ $ZPM remove "zsh-users/zsh-autosuggestions" 2>&1 > /dev/null
+  $ $ZPM "zsh-users/zsh-syntax-highlighting" > /dev/null 2>&1
+  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" > /dev/null 2>&1
+  $ $ZPM remove "zsh-users/zsh-autosuggestions" > /dev/null 2>&1
 
   $ [ -d $HOME/.zpm/plugins/zsh-users/zsh-syntax-highlighting ]
   [1]

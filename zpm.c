@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <limits.h>
-
+#include <stdarg.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -19,6 +19,27 @@
 
 static char zpm_init[PATH_MAX];
 static char zpm_list[PATH_MAX];
+
+enum ZPM_MSG_TYPE {
+    ZPM_MSG,
+    ZPM_ERR,
+    ZPM_LOG,
+    ZPM_DEBUG,
+    ZPM_NONE
+};
+
+void zpm_msg(enum ZPM_MSG_TYPE type, const char* fmt, ...) {
+    char msg[PATH_MAX];
+    FILE* f = type == ZPM_ERR ? stderr : stdout;
+    va_list arg;
+    va_start(arg, fmt);
+    vsnprintf(msg, 256, fmt, arg);
+    if (type != ZPM_NONE) {
+        fprintf(f, "[ZPM] ");
+    }
+    fprintf(f, "%s\n", msg);
+    va_end(arg);
+}
 
 char* generate_plugin_path(char* plugin_name) {
     if (plugin_name[0] == '/') {
@@ -270,7 +291,6 @@ char* generate_repository_url(char* plugin_name) {
     } else {
         strcpy(url, plugin_name);
     }
- 
 
     return url;
 }

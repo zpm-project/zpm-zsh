@@ -366,9 +366,9 @@ char* plugin_get_hash(char* plugin_name) {
     char command[PATH_MAX];
 	char git_path[PATH_MAX];
 
-	strcpy(git_path, plugin_path);
+    strcpy(git_path, plugin_path);
     strcat(git_path, "/.git");
-	memset(&s, 0, sizeof(s));
+    memset(&s, 0, sizeof(s));
     if (stat(git_path, &s) == -1 || !S_ISDIR(s.st_mode)) {
         free(plugin_path);
         return NULL;

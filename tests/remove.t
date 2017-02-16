@@ -3,14 +3,14 @@
 Can't remove non-installed plugin
   $ $ZPM reset
   $ $ZPM remove non_installed_plugin
-  Plugin "non_installed_plugin" is not installed.
+  [ZPM] Plugin "non_installed_plugin" is not installed.
   [1]
 
 Plugin parent directory is not removed if not empty
   $ $ZPM reset
-  $ $ZPM "zsh-users/zsh-syntax-highlighting" > /dev/null
-  $ $ZPM "zsh-users/zsh-autosuggestions"     > /dev/null
-  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" > /dev/null
+  $ $ZPM "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
+  $ $ZPM "zsh-users/zsh-autosuggestions"    2>&1 > /dev/null
+  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
   $ ls $HOME/.zpm/plugins/zsh-users/
   zsh-autosuggestions
 
@@ -19,9 +19,9 @@ Plugin directory is properly unlinked after remove and parent directory is prope
   $ $ZPM list
   zsh-users/zsh-autosuggestions@.* (re)
 
-  $ $ZPM "zsh-users/zsh-syntax-highlighting" > /dev/null
-  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" > /dev/null
-  $ $ZPM remove "zsh-users/zsh-autosuggestions" > /dev/null
+  $ $ZPM "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
+  $ $ZPM remove "zsh-users/zsh-syntax-highlighting" 2>&1 > /dev/null
+  $ $ZPM remove "zsh-users/zsh-autosuggestions" 2>&1 > /dev/null
 
   $ [ -d $HOME/.zpm/plugins/zsh-users/zsh-syntax-highlighting ]
   [1]
@@ -31,6 +31,6 @@ Plugin directory is properly unlinked after remove and parent directory is prope
 
 After being removed, plugin is not listed anymore
   $ $ZPM list
-  Nothing to show.
+  [ZPM] Nothing to show.
   [1]
 

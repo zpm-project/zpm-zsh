@@ -4,16 +4,16 @@ Can install multiple plugins under the same user.
 
   $ $ZPM reset
   $ $ZPM "$ZPM_TEST_REPOS/example-plugin"
-  Installing .*/example-plugin... Done. (re)
+  \[ZPM\] Installing .*/example-plugin... Done. (re)
   $ $ZPM "$ZPM_TEST_REPOS/example-theme"
-  Installing .*/example-theme... Done. (re)
+  \[ZPM\] Installing .*/example-theme... Done. (re)
   $ ls $ZPM_TEST_REPOS
   example-plugin (re)
   example-theme (re)
 
 Avoid installing plugin twice
   $ $ZPM reset
-  $ $ZPM "$ZPM_TEST_REPOS/example-plugin" > /dev/null
+  $ $ZPM "$ZPM_TEST_REPOS/example-plugin"2<>11 > /dev/null
   $ $ZPM "$ZPM_TEST_REPOS/example-plugin"
-  Plugin ".*/example-plugin" already installed. (re)
+  \[ZPM\] Plugin ".*/example-plugin" already installed. (re)
   [1]

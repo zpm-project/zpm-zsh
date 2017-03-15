@@ -1,4 +1,4 @@
-# zpm - Zsh Plugin Manager <!-- [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/zpm-project/Lobby) -->[![Build Status](https://travis-ci.org/zpm-project/zpm-zsh.svg)](https://travis-ci.org/zpm-project/zpm-zsh)
+# zpm - Zsh Plugin Manager [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/zpm-project/Lobby) [![Build Status](https://travis-ci.org/zpm-project/zpm-zsh.svg)](https://travis-ci.org/zpm-project/zpm-zsh)
 
 zsh plugin manager in ansi C.
 

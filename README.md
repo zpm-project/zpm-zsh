@@ -4,6 +4,15 @@ zsh plugin manager in ansi C.
 
 ### Installation
 
+#### MacOS
+
+```sh
+brew tap jedahan/homebrew-zpm
+brew install zpm
+```
+
+#### Manual
+
 Clone this repository and then:
 
 ```sh
